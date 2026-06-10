@@ -31,116 +31,65 @@ nur noch UniStori.
 
 ## Feldstruktur
 
-Jeder UniStori-Datensatz enthält folgende Felder:
+Jeder UniStori-Datensatz enthält folgende Pflichtfelder:
 
-| UniStori-Feld  | Typ              | Pflicht | Beschreibung                                        |
-|----------------|------------------|:-------:|-----------------------------------------------------|
-| `id`           | `integer`        | ✅      | Eindeutiger Bezeichner des Datensatzes              |
-| `name`         | `string`         | ✅      | Titel oder Kurzbezeichnung                          |
-| `beschreibung` | `string`         | ✅      | Ausführlicher Beschreibungstext (User Story + AKs)  |
-| `status`       | `string`         | ✅      | Bearbeitungsstatus: `"open"` oder `"closed"`        |
-| `verantwortliche` | `string[]`    | ❌      | Liste der zugewiesenen Personen (kann leer sein)    |
-| `erstellt_am`  | `string` (ISO 8601) | ✅   | Erstellungszeitpunkt im Format `YYYY-MM-DDTHH:mm:ssZ` |
-| `geschlossen_am` | `string\|null` (ISO 8601) | ❌ | Abschlusszeitpunkt, `null` wenn noch offen      |
-| `sprint`       | `string\|null`   | ❌      | Zugehöriger Sprint oder Backlog, `null` wenn keiner |
+| UniStori-Feld  | Typ       | Beschreibung                              |
+|----------------|-----------|-------------------------------------------|
+| `id`           | `integer` | Eindeutiger Bezeichner des Datensatzes    |
+| `name`         | `string`  | Titel oder Kurzbezeichnung               |
+| `beschreibung` | `string`  | Ausführlicher Beschreibungstext           |
 
-> **Hinweis:** Felder mit ❌ sind optional. Pflichtfelder mit ✅ müssen immer vorhanden
-> und gültig sein — andernfalls wird der Datensatz beim Import **abgewiesen**.
+> **Hinweis:** Weitere optionale Felder können bei Bedarf ergänzt werden, ohne die Pflichtstruktur zu brechen.
 
 ---
 
-## Mapping-Tabelle: GitHub Issues (JSON)
+## Mapping-Tabelle: Bekannte Quellen
 
-Die primäre Datenquelle sind GitHub Issues im JSON-Format.
+### Quelle 1 — JSON (GitHub Issues)
 
-| GitHub-Quellfeld       | UniStori-Feld      | Typ                  | Konvertierung / Hinweis                          |
-|------------------------|--------------------|----------------------|--------------------------------------------------|
-| `number`               | `id`               | `integer`            | Direkt übernehmen                                |
-| `title`                | `name`             | `string`             | Direkt übernehmen, führende Leerzeichen trimmen  |
-| `body`                 | `beschreibung`     | `string`             | Direkt übernehmen                                |
-| `state`                | `status`           | `string`             | Direkt übernehmen (`"open"` / `"closed"`)        |
-| `assignees[].login`    | `verantwortliche`  | `string[]`           | Alle `login`-Werte in ein Array extrahieren      |
-| `createdAt`            | `erstellt_am`      | `string` (ISO 8601)  | Direkt übernehmen                                |
-| `closedAt`             | `geschlossen_am`   | `string\|null`       | Direkt übernehmen, `null` wenn nicht gesetzt     |
-| `milestone.title`      | `sprint`           | `string\|null`       | Nur `.title` extrahieren, `null` wenn kein Milestone |
+| Quellfeld | UniStori-Feld  | Typ       | Konvertierung     |
+|-----------|----------------|-----------|-------------------|
+| `number`  | `id`           | `integer` | Direkt (JSON)     |
+| `title`   | `name`         | `string`  | Direkt (JSON)     |
+| `body`    | `beschreibung` | `string`  | Direkt (JSON)     |
 
-### Nicht übernommene GitHub-Felder
+Alle weiteren Felder (`state`, `assignees`, `createdAt`, `closedAt`, `milestone`, …)
+werden beim Import **nicht übernommen**.
 
-Folgende Felder aus den GitHub Issues werden im UniStori-Format **nicht** abgebildet,
-da sie für die interne Verarbeitung nicht benötigt werden:
+### Quelle 2 — CSV
 
-- `labels`, `comments`, `url`, `html_url`, `user`, `reactions`, u. a.
-
----
-
-## Mapping-Tabelle: CSV
-
-Bei CSV-Quellen orientiert sich das Mapping an der Spaltenreihenfolge oder den
-Spaltenköpfen. Fehlende Felder werden mit Standardwerten befüllt.
-
-| CSV-Spalte / Header    | UniStori-Feld      | Typ       | Konvertierung / Standardwert              |
-|------------------------|--------------------|-----------|-------------------------------------------|
-| `number` / Spalte 1    | `id`               | `integer` | Parse & cast zu Integer                   |
-| `title` / Spalte 2     | `name`             | `string`  | Trim & normalize                          |
-| `body` / Spalte 3      | `beschreibung`     | `string`  | Trim & normalize                          |
-| `state` / Spalte 4     | `status`           | `string`  | Lowercase, Standardwert: `"open"`         |
-| `assignees` / Spalte 5 | `verantwortliche`  | `string[]`| Semikolon-getrennte Liste → Array, Standard: `[]` |
-| `createdAt` / Spalte 6 | `erstellt_am`      | `string`  | ISO-8601-Parsing, Pflichtfeld             |
-| `closedAt` / Spalte 7  | `geschlossen_am`   | `string\|null` | ISO-8601-Parsing, Standard: `null`   |
-| `milestone` / Spalte 8 | `sprint`           | `string\|null` | Trim, Standard: `null`               |
+| Quellfeld *(variiert)* | UniStori-Feld  | Typ       | Konvertierung       |
+|------------------------|----------------|-----------|---------------------|
+| Spalte 1               | `id`           | `integer` | Parse & cast        |
+| Spalte 2               | `name`         | `string`  | Trim & normalize    |
+| Spalte 3               | `beschreibung` | `string`  | Trim & normalize    |
 
 ---
 
-## Beispiel-Datensätze (UniStori)
+## Beispiel-Datensatz (UniStori)
 
-### Offenes Issue mit Assignee und Sprint
-
-Basierend auf GitHub Issue #1 aus den realen Projektdaten:
+Eingabe (GitHub Issue):
 
 ```json
 {
-  "id": 1,
-  "name": "Automatisierte Einarbeitung über den internen Server",
-  "beschreibung": "## User Story\nAls HR-Manager möchte ich ein digitales System auf unserem Server bereitstellen, damit das Onboarding neuer Mitarbeiter papierlos und zentral gesteuert wird.\n\n## Akzeptanzkriterien\n- [ ] Das Netzwerk muss die sichere Übertragung des Personaldaten-Formulars garantieren.\n- [ ] Automatischer Versand von System-Zugangsdaten nach erfolgreicher Registrierung.\n- [ ] Eine interaktive Checkliste für die Einarbeitung wird im Intranet bereitgestellt.",
-  "status": "open",
-  "verantwortliche": ["anna-mueller"],
-  "erstellt_am": "2025-05-01T08:23:00Z",
-  "geschlossen_am": null,
-  "sprint": "Sprint 3"
+  "number": 6,
+  "title": "CSV-Import für die Lieferanten-Datenbank bereitstellen",
+  "state": "open",
+  "body": "## User Story\nAls Einkäufer möchte ich eine Schnittstelle nutzen, um Lieferanten-Stammdaten direkt in die relationale Datenbank einzuspielen und manuelle Aufwände zu minimieren.\n\n## Akzeptanzkriterien\n- [ ] Eine Upload-Maske nimmt CSV-Dateien im Backend entgegen.\n- [ ] Die Logik validiert alle erforderlichen Pflichtfelder vor dem Schreibvorgang.\n- [ ] Bei Fehlern wird ein Protokoll generiert und an den Client zurückgegeben.",
+  "assignees": [{ "login": "thomas-braun" }],
+  "createdAt": "2025-05-01T07:45:00Z",
+  "closedAt": null,
+  "milestone": { "title": "Sprint 3" }
 }
 ```
 
-### Geschlossenes Issue ohne Assignee
-
-Basierend auf GitHub Issue #10:
+Ausgabe (UniStori):
 
 ```json
 {
-  "id": 10,
-  "name": "Automatisierte Backend-Meldung bei ablaufenden Verträgen",
-  "beschreibung": "## User Story\nAls Einkäufer möchte ich bei bevorstehendem Vertragsende benachrichtigt werden, basierend auf den in der Datenbank hinterlegten Fristen.\n\n## Akzeptanzkriterien\n- [ ] Das Backend stößt 30 Tage vor Ablauf eine E-Mail-Generierung an.\n- [ ] Eine finale Warnung erfolgt 7 Tage vor dem Stichtag.\n- [ ] Die Nachricht enthält eine URL, die direkt auf den Datensatz in der App verweist.",
-  "status": "closed",
-  "verantwortliche": ["thomas-braun"],
-  "erstellt_am": "2025-03-01T08:00:00Z",
-  "geschlossen_am": "2025-04-01T12:00:00Z",
-  "sprint": "Sprint 1"
-}
-```
-
-### Issue ohne Assignee und ohne Sprint (Backlog)
-
-Basierend auf GitHub Issue #3:
-
-```json
-{
-  "id": 3,
-  "name": "Karrierepfade im mobilen WAN-Netzwerk bereitstellen",
-  "beschreibung": "## User Story\nAls Mitarbeiter möchte ich meine Entwicklungswege auch von unterwegs über das Firmen-WAN einsehen können, um meine Weiterbildung flexibel zu planen.\n\n## Akzeptanzkriterien\n- [ ] Die Server-Infrastruktur stellt mindestens zwei visuelle Karrierepfade stabil dar.\n- [ ] Direkte Verlinkung zu passenden Bildungsangeboten im Intranet.\n- [ ] Optimierte mobile Ansicht für den Abruf außerhalb des lokalen Büros.",
-  "status": "open",
-  "verantwortliche": [],
-  "erstellt_am": "2025-05-12T11:30:00Z",
-  "geschlossen_am": null,
-  "sprint": "Backlog"
+  "id": 6,
+  "name": "CSV-Import für die Lieferanten-Datenbank bereitstellen",
+  "beschreibung": "## User Story\nAls Einkäufer möchte ich eine Schnittstelle nutzen, um Lieferanten-Stammdaten direkt in die relationale Datenbank einzuspielen und manuelle Aufwände zu minimieren.\n\n## Akzeptanzkriterien\n- [ ] Eine Upload-Maske nimmt CSV-Dateien im Backend entgegen.\n- [ ] Die Logik validiert alle erforderlichen Pflichtfelder vor dem Schreibvorgang.\n- [ ] Bei Fehlern wird ein Protokoll generiert und an den Client zurückgegeben."
 }
 ```
 
@@ -149,69 +98,39 @@ Basierend auf GitHub Issue #3:
 ## Datenfluss-Diagramm
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                          Externe Quellen                             │
-│                                                                      │
-│   ┌─────────────────────────┐    ┌─────────────────────────┐        │
-│   │       JSON              │    │         CSV             │        │
-│   │  (GitHub Issues API)    │    │    (Manueller Import)   │        │
-│   │                         │    │                         │        │
-│   │  number, title, body,   │    │  Spalten: id, title,    │        │
-│   │  state, assignees,      │    │  body, state, assignees,│        │
-│   │  createdAt, closedAt,   │    │  createdAt, closedAt,   │        │
-│   │  milestone              │    │  milestone              │        │
-│   └────────────┬────────────┘    └────────────┬────────────┘        │
-└────────────────┼─────────────────────────────────┼───────────────────┘
-                 │                                 │
-                 ▼                                 ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                      MAPPING-SCHICHT  (Marc)                           │
-│                                                                        │
-│   Quellfeld → UniStori-Feld · Typprüfung · Normalisierung             │
-│   assignees[].login → string[]  ·  milestone.title → string|null      │
-└────────────────────────────────────┬───────────────────────────────────┘
-                                     │
-                                     ▼
-                   ┌─────────────────────────────────┐
-                   │        UniStori-Format           │  ← Einheitliche Sprache
-                   │                                  │
-                   │  { id, name, beschreibung,       │
-                   │    status, verantwortliche,      │
-                   │    erstellt_am, geschlossen_am,  │
-                   │    sprint }                      │
-                   └────────────────┬─────────────────┘
-                                    │
-               ┌────────────────────┴────────────────────┐
-               ▼                                         ▼
-  ┌──────────────────────────┐             ┌──────────────────────────┐
-  │    FACHLOGIK (Moritz)    │             │    API / Tests (Jeremy)  │
-  │                          │             │                          │
-  │  Regelwerk, Validierung, │             │  GET  /userstories       │
-  │  Geschäftslogik,         │             │  POST /userstories       │
-  │  Duplikatsprüfung        │             │  PUT  /userstories/{id}  │
-  │                          │             │  DELETE /userstories/{id}│
-  └──────────────────────────┘             └──────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                         Externe Quellen                         │
+│                                                                 │
+│    ┌──────────────┐              ┌──────────────┐               │
+│    │     CSV      │              │     JSON     │               │
+│    │  (Quelle 1)  │              │  (Quelle 2)  │               │
+│    └──────┬───────┘              └──────┬───────┘               │
+└───────────┼─────────────────────────────┼───────────────────────┘
+            │                             │
+            ▼                             ▼
+┌───────────────────────────────────────────────────────────────────┐
+│                    MAPPING-SCHICHT  (Marc)                        │
+│                                                                   │
+│   Quellfeld → UniStori-Feld · Typprüfung · Normalisierung        │
+└──────────────────────────────┬────────────────────────────────────┘
+                               │
+                               ▼
+                    ┌──────────────────┐
+                    │ UniStori-Format  │  ← Alles spricht ab hier UniStori
+                    │  { id, name,     │
+                    │    beschreibung }│
+                    └────────┬─────────┘
+                             │
+            ┌────────────────┴───────────────┐
+            ▼                                ▼
+┌─────────────────────┐          ┌────────────────────────┐
+│  FACHLOGIK (Moritz) │          │    API / Tests          │
+│                     │          │      (Jeremy)           │
+│  Regelwerk, Validie-│          │                         │
+│  rung, Geschäftslog.│          │  GET  /userstories      │
+│                     │          │  POST /userstories      │
+└─────────────────────┘          └────────────────────────┘
 ```
-
----
-
-## Validierungsregeln
-
-Ein gültiger UniStori-Datensatz muss folgende Bedingungen erfüllen:
-
-| # | Feld              | Regel                                                                 |
-|---|-------------------|-----------------------------------------------------------------------|
-| 1 | `id`              | Vorhanden, eindeutig, ganzzahlig (`integer`), größer als `0`         |
-| 2 | `name`            | Vorhanden, nicht leer, nicht `null`                                  |
-| 3 | `beschreibung`    | Vorhanden, nicht leer, nicht `null`                                  |
-| 4 | `status`          | Genau `"open"` oder `"closed"`, kein anderer Wert erlaubt            |
-| 5 | `verantwortliche` | Muss ein Array sein — auch leeres Array `[]` ist gültig              |
-| 6 | `erstellt_am`     | Vorhanden, gültiges ISO-8601-Datum                                   |
-| 7 | `geschlossen_am`  | Gültiges ISO-8601-Datum **oder** explizit `null`                     |
-| 8 | `sprint`          | Beliebiger String **oder** `null` — kein Leerstring `""` erlaubt    |
-
-Datensätze, die diese Regeln verletzen, werden beim Import **abgewiesen** und in einem
-Fehlerprotokoll erfasst.
 
 ---
 
@@ -220,8 +139,8 @@ Fehlerprotokoll erfasst.
 ### 🗂️ Marc Price — Rolle A: Datenimport und Mapping
 Marc ist verantwortlich für alles, was **vor** dem UniStori-Format passiert.
 
-- Anbindung externer Quellen (JSON via GitHub API, CSV)
-- Implementierung der Mapping-Logik (inkl. `assignees[].login`-Extraktion)
+- Anbindung externer Quellen (CSV, JSON, …)
+- Implementierung der Mapping-Logik
 - Sicherstellung von Typen und Datenqualität beim Import
 
 ### ⚙️ Moritz Timpe — Rolle B: Fachlogik und Regelwerk
@@ -242,32 +161,40 @@ Jeremy stellt das UniStori-Format nach **außen** zur Verfügung.
 
 ## Technologie-Stack
 
-| Komponente   | Technologie                                                                         |
-|--------------|-------------------------------------------------------------------------------------|
-| Backend      | Python · FastAPI                                                                    |
-| Architektur  | REST API · Frontend/Backend-Trennung                                                |
-| Quellcode    | [github.com/MoritzTimpeBBK/Stori](https://github.com/MoritzTimpeBBK/Stori)        |
-| Datenformate | JSON (GitHub Issues API) · CSV                                                      |
+| Komponente     | Technologie              |
+|----------------|--------------------------|
+| Backend        | Python · FastAPI         |
+| Architektur    | REST API · Frontend/Backend-Trennung |
+| Quellcode      | [github.com/MoritzTimpeBBK/Stori](https://github.com/MoritzTimpeBBK/Stori) |
+| Datenformate   | JSON · CSV               |
+
+---
+
+## Validierungsregeln
+
+Ein gültiger UniStori-Datensatz muss folgende Bedingungen erfüllen:
+
+1. `id` — muss vorhanden, eindeutig und eine ganze Zahl (`integer`) sein
+2. `name` — darf nicht leer oder `null` sein
+3. `beschreibung` — darf nicht leer oder `null` sein
+
+Datensätze, die diese Regeln verletzen, werden beim Import **abgewiesen** und geloggt.
 
 ---
 
 ## Namens-Konventionen
 
-- Feldnamen: `snake_case`, Deutsch
-- String-Werte: UTF-8, keine führenden/nachgestellten Leerzeichen
-- IDs: immer numerisch (`integer`), nie als String
-- Datumsfelder: immer ISO 8601 mit Zeitzone (`Z` = UTC)
-- Leere Listen: `[]` statt `null`
-- Fehlende optionale Strings: `null` statt `""`
+- Feldnamen: `snake_case`, deutsch
+- Werte: UTF-8, keine führenden/nachgestellten Leerzeichen
+- IDs: immer numerisch, nie als String
 
 ---
 
 ## Versionierung
 
-| Version | Datum      | Änderung                                          | Autor                |
-|---------|------------|---------------------------------------------------|----------------------|
-| 1.0     | 2026-06-10 | Initiale Definition (3 Felder: id, name, beschreibung) | Marc, Jeremy, Moritz |
-| 1.1     | 2026-06-10 | Erweiterung auf 8 Felder anhand realer GitHub-Issues-Daten | Marc, Jeremy, Moritz |
+| Version | Datum      | Änderung                        | Autor                |
+|---------|------------|---------------------------------|----------------------|
+| 1.0     | 2026-06-10 | Initiale Definition             | Marc, Jeremy, Moritz |
 
 ---
 
