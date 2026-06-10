@@ -33,11 +33,11 @@ nur noch UniStori.
 
 Jeder UniStori-Datensatz enthält folgende Pflichtfelder:
 
-| UniStori-Feld  | Typ       | Beschreibung                              |
-|----------------|-----------|-------------------------------------------|
-| `id`           | `integer` | Eindeutiger Bezeichner des Datensatzes    |
-| `name`         | `string`  | Titel oder Kurzbezeichnung               |
-| `beschreibung` | `string`  | Ausführlicher Beschreibungstext           |
+| UniStori-Feld  | Typ       | Beschreibung                           |
+| -------------- | --------- | -------------------------------------- |
+| `id`           | `integer` | Eindeutiger Bezeichner des Datensatzes |
+| `name`         | `string`  | Titel oder Kurzbezeichnung             |
+| `beschreibung` | `string`  | Ausführlicher Beschreibungstext        |
 
 > **Hinweis:** Weitere optionale Felder können bei Bedarf ergänzt werden, ohne die Pflichtstruktur zu brechen.
 
@@ -47,22 +47,22 @@ Jeder UniStori-Datensatz enthält folgende Pflichtfelder:
 
 ### Quelle 1 — JSON (GitHub Issues)
 
-| Quellfeld | UniStori-Feld  | Typ       | Konvertierung     |
-|-----------|----------------|-----------|-------------------|
-| `number`  | `id`           | `integer` | Direkt (JSON)     |
-| `title`   | `name`         | `string`  | Direkt (JSON)     |
-| `body`    | `beschreibung` | `string`  | Direkt (JSON)     |
+| Quellfeld | UniStori-Feld  | Typ       | Konvertierung |
+| --------- | -------------- | --------- | ------------- |
+| `number`  | `id`           | `integer` | Direkt (JSON) |
+| `title`   | `name`         | `string`  | Direkt (JSON) |
+| `body`    | `beschreibung` | `string`  | Direkt (JSON) |
 
 Alle weiteren Felder (`state`, `assignees`, `createdAt`, `closedAt`, `milestone`, …)
 werden beim Import **nicht übernommen**.
 
 ### Quelle 2 — CSV
 
-| Quellfeld *(variiert)* | UniStori-Feld  | Typ       | Konvertierung       |
-|------------------------|----------------|-----------|---------------------|
-| Spalte 1               | `id`           | `integer` | Parse & cast        |
-| Spalte 2               | `name`         | `string`  | Trim & normalize    |
-| Spalte 3               | `beschreibung` | `string`  | Trim & normalize    |
+| Quellfeld _(variiert)_ | UniStori-Feld  | Typ       | Konvertierung    |
+| ---------------------- | -------------- | --------- | ---------------- |
+| Spalte 1               | `id`           | `integer` | Parse & cast     |
+| Spalte 2               | `name`         | `string`  | Trim & normalize |
+| Spalte 3               | `beschreibung` | `string`  | Trim & normalize |
 
 ---
 
@@ -137,6 +137,7 @@ Ausgabe (UniStori):
 ## Rollenverteilung & Verantwortlichkeiten
 
 ### 🗂️ Marc Price — Rolle A: Datenimport und Mapping
+
 Marc ist verantwortlich für alles, was **vor** dem UniStori-Format passiert.
 
 - Anbindung externer Quellen (CSV, JSON, …)
@@ -144,6 +145,7 @@ Marc ist verantwortlich für alles, was **vor** dem UniStori-Format passiert.
 - Sicherstellung von Typen und Datenqualität beim Import
 
 ### ⚙️ Moritz Timpe — Rolle B: Fachlogik und Regelwerk
+
 Moritz arbeitet **auf** dem UniStori-Format.
 
 - Definition und Umsetzung der Geschäftsregeln
@@ -151,6 +153,7 @@ Moritz arbeitet **auf** dem UniStori-Format.
 - Steuerung der internen Verarbeitungspipeline
 
 ### 🔌 Jeremy Alejo Plato — Rolle C: API, Validierung, Tests und Doku
+
 Jeremy stellt das UniStori-Format nach **außen** zur Verfügung.
 
 - Entwicklung der REST-API (FastAPI / Python)
@@ -161,12 +164,12 @@ Jeremy stellt das UniStori-Format nach **außen** zur Verfügung.
 
 ## Technologie-Stack
 
-| Komponente     | Technologie              |
-|----------------|--------------------------|
-| Backend        | Python · FastAPI         |
-| Architektur    | REST API · Frontend/Backend-Trennung |
-| Quellcode      | [github.com/MoritzTimpeBBK/Stori](https://github.com/MoritzTimpeBBK/Stori) |
-| Datenformate   | JSON · CSV               |
+| Komponente   | Technologie                                                                |
+| ------------ | -------------------------------------------------------------------------- |
+| Backend      | Python · FastAPI                                                           |
+| Architektur  | REST API · Frontend/Backend-Trennung                                       |
+| Quellcode    | [github.com/MoritzTimpeBBK/Stori](https://github.com/MoritzTimpeBBK/Stori) |
+| Datenformate | JSON · CSV                                                                 |
 
 ---
 
@@ -192,15 +195,15 @@ Datensätze, die diese Regeln verletzen, werden beim Import **abgewiesen** und g
 
 ## Versionierung
 
-| Version | Datum      | Änderung                        | Autor                |
-|---------|------------|---------------------------------|----------------------|
-| 1.0     | 2026-06-10 | Initiale Definition             | Marc, Jeremy, Moritz |
+| Version | Datum      | Änderung            | Autor                |
+| ------- | ---------- | ------------------- | -------------------- |
+| 1.0     | 2026-06-10 | Initiale Definition | Marc, Jeremy, Moritz |
 
 ---
 
-> *„Ein Format für alle. Einmal gemappt, überall verstanden."*
+> _„Ein Format für alle. Einmal gemappt, überall verstanden."_
 > — Team 3, LF 8
 
 ---
 
-*UniStori-Format · Team 3 · Abschlussprojekt LF 8*
+_UniStori-Format · Team 3 · Abschlussprojekt LF 8_
