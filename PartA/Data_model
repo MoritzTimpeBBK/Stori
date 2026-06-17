@@ -1,0 +1,8 @@
+# models/unistori.py
+from dataclasses import dataclass
+
+@dataclass
+class UniStori:
+    id: int
+    name: str
+    beschreibung: str
