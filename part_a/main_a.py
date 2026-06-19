@@ -9,6 +9,7 @@ from part_a.loader.json_loader import load_json
 from part_a.mapper.json_mapper import map_github_issues
 from part_a.loader.csv_loader import load_csv
 from part_a.mapper.csv_mapper import map_csv
+# evtl. später noch für XML liefern
  
  
 def load_unistories_from_json(path: str):
@@ -19,20 +20,29 @@ def load_unistories_from_json(path: str):
 def load_unistories_from_csv(path: str):
     raw = load_csv(path)
     return map_csv(raw)
+
+
+def get_all_uni_stories(source_type: str):
+    if source_type == "json":
+        return load_unistories_from_json("data/stories.json")
+ 
+    if source_type == "csv":
+        return load_unistories_from_csv("data/stories.csv")
+        
+    if source_type == "xml":
+        # return load_unistories_from_xml("data/stories.xml") #noch nicht vorhanden
+        pass
+ 
+    raise ValueError(f"Unbekannter Datentyp: {source_type}")
  
  
 if __name__ == "__main__":
-    # 🔹 Format auswählen
-    source_type = "csv"  # "json" oder "csv"
+    # 🔹 Hier kannst du jetzt flexibel "json", "csv" (oder später "xml") eintragen:
+    wahl = "csv" 
  
-    if source_type == "json":
-        stories = load_unistories_from_json("data/stories.json")
- 
-    elif source_type == "csv":
-        stories = load_unistories_from_csv("data/stories.csv")
- 
-    else:
-        raise ValueError("Unbekannter Datentyp")
- 
-    for s in stories:
-        print(s)
+    try:
+        stories = get_all_uni_stories(wahl)
+        for s in stories:
+            print(s)
+    except ValueError as e:
+        print(e)
