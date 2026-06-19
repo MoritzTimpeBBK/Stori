@@ -29,7 +29,7 @@ if __name__ == "__main__":
         stories = load_unistories_from_json("data/stories.json")
  
     elif source_type == "csv":
-        stories = load_unistories_from_csv("data\stories.csv")
+        stories = load_unistories_from_csv("data/stories.csv")
  
     else:
         raise ValueError("Unbekannter Datentyp")
