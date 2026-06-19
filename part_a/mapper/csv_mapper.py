@@ -4,16 +4,16 @@ from part_a.utils.text_utils import normalize
  
 def map_csv(rows: list[list[str]]) -> list[UniStori]:
     result: list[UniStori] = []
- 
-    for row in rows:
+
+    for i, row in enumerate(rows[1:], start=1):  # skip header row
         if len(row) < 3:
-            continue  # ungültiger Datensatz
- 
+            continue
+
         unistori = UniStori(
-            id=int(row[0]),
-            name=normalize(row[1]),
-            beschreibung=normalize(row[2])
+            id=i,
+            name=normalize(row[0]),
+            beschreibung=normalize(row[1])
         )
         result.append(unistori)
- 
+
     return result
