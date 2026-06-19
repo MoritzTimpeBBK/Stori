@@ -1,0 +1,1008 @@
+Abschlussprojekt
+Projektunterlagen fuer Lernende
+Fachinformatiker Anwendungsentwicklung - LF 8
+Schuljahr 2025/2026
+
+================================================================================
+INHALTSVERZEICHNIS
+================================================================================
+
+- Teamuebersicht
+- Grundbegriffe fuer das Abschlussprojekt [Nachschlagewerk]
+- Projektauftrag [Pflicht]
+- Meilensteine und Termine [Pflicht]
+- Buentelungsfaecher AE [Pflicht]
+- Abgabe und Repository [Nachschlagewerk]
+- Praesentation und Abschluss [Nachschlagewerk]
+- Vertretungsauftrag 10.06. [Nachschlagewerk]
+- Reflexion - Projektabschluss LF8 [Nachschlagewerk]
+- Vertretungsauftrag 24.06. [Nachschlagewerk]
+
+================================================================================
+TEAMUEBERSICHT
+================================================================================
+
+Diese Datei haelt die Teamzusammensetzung fest. Die Rollenverteilung wird im Projektauftrag und in der
+Lehrkraftplanung vorgeschlagen und kann hier bei Bedarf ergaenzt werden.
+
+Team 1
+- Kseniia U.
+- Fynn S.
+- Finn O.
+
+Team 2
+- Danilo W.
+- Steven B.
+- Oliver J.
+
+Team 3
+- Moritz T.
+- Jeremy P.
+- Marc P.
+
+Team 4
+- Daniel G.
+- Jonas S.
+- Finn J.
+
+Team 5
+- Jakob S.
+- Sam D.
+- Lennard S.
+
+Team 6
+- Nils B.
+- Samuel W.
+
+Hinweis fuer das 2er-Team:
+Das 2er-Team arbeitet mit reduziertem Pflichtumfang. Verbindlich sind zwei heterogene Quellen, ein gemeinsames
+Datenmodell, eine funktionsfaehige API und eine regelbasierte Zuordnung.
+
+================================================================================
+GRUNDBEGRIFFE FUER DAS ABSCHLUSSPROJEKT
+================================================================================
+
+Diese Datei erklaert die wichtigsten Begriffe, die im Projekt immer wieder auftauchen. Lies sie einmal durch,
+bevor du in die anderen Dokumente einsteigst.
+
+USER STORY
+----------
+Eine User Story beschreibt eine fachliche Anforderung aus der Sicht einer Person, die das System nutzt.
+Das Format ist immer:
+
+  Als [Rolle] moechte ich [Ziel], damit [Nutzen].
+
+Beispiele:
+  Als Lernende moechte ich meine Note in einem Portal einsehen koennen, damit ich nicht auf den Postweg
+  warten muss.
+  Als Lehrkraft moechte ich sehen, welchen Faechern eine User Story zugeordnet wurde, damit ich die Bewertung
+  transparent nachvollziehen kann.
+
+User Story oder Ticket?
+Im naechsten Schuljahr arbeiten Anwendungsentwickler eher mit User Stories (Was soll das System koennen?),
+waehrend Systemintegratoren eher technische Tickets bearbeiten (Wie genau soll etwas umgesetzt werden?).
+In diesem Projekt sagen wir deshalb meistens User Story, meinen aber immer beides.
+
+DATENQUELLEN
+------------
+Im Projekt meint "Quelle" eine Datei in einem bestimmten Format, aus der eure Anwendung Daten liest.
+Ihr simuliert damit, dass in der Realitaet verschiedene Tools ihre Daten unterschiedlich exportieren.
+
+Konkrete Beispiele:
+- Microsoft Planner kann Aufgaben als CSV exportieren
+- GitHub Issues lassen sich als JSON exportieren
+- Aeltere oder XML-basierte Systeme liefern XML-Dateien
+
+Fuer euer Projekt benutzt ihr selbst erstellte Beispieldateien, die aber so aufgebaut sind, als kaemen sie
+aus echten Tools.
+
+Welche Formate benutzt ihr?
+
+Format | Dateiendung | Kurzbeschreibung
+CSV    | .csv        | tabellarisch, Felder durch Komma oder Semikolon getrennt
+JSON   | .json       | strukturiert, weit verbreitet in Web-APIs
+XML    | .xml        | strukturiert mit Tags, aelterer Standard
+
+Mindestens zwei dieser Formate muessen unterschiedliche Feldnamen oder unterschiedliche Strukturen haben.
+Genau das macht sie "heterogen".
+
+DATENMODELL
+-----------
+Ein Datenmodell legt fest, welche Felder eine User Story in eurem System hat - unabhaengig davon, aus welcher
+Quelle sie stammt.
+
+Warum braucht man das?
+Quelle A (CSV-Export aus Planner) hat ein Feld "Aufgabe". Quelle B (JSON-Export aus GitHub) hat ein Feld
+"title". Beide meinen dasselbe. Im gemeinsamen Modell heisst das Feld bei euch z. B. "titel".
+
+Beispiel fuer ein einfaches gemeinsames Modell:
+
+Feld          | Typ   | Pflicht? | Erklaerung
+id            | Text  | ja       | eindeutige Kennung
+titel         | Text  | ja       | Kurztitel der User Story
+beschreibung  | Text  | nein     | ausfuehrlichere Erklaerung
+quelle        | Text  | ja       | woher kam die Datei? csv, json oder xml
+rolle         | Text  | nein     | Fachrichtung oder Rolle (z. B. AE)
+prioritaet    | Text  | nein     | z. B. hoch, mittel, niedrig
+tags          | Liste | nein     | Stichworte fuer die Zuordnung
+
+Das Modell entscheidet ihr selbst - es muss aber fuer alle Quellen und fuer eure Fachzuordnung sinnvoll sein.
+
+MAPPING
+-------
+Mapping bedeutet: "Welches Feld in Quelle A entspricht welchem Feld in unserem Modell?"
+
+Beispiel:
+
+Feld in CSV-Quelle | Feld in JSON-Quelle | Feld in eurem Modell
+Aufgabe            | title               | titel
+Beschreibung       | body                | beschreibung
+Prioritaet         | priority            | prioritaet
+- (fehlt)          | labels              | tags
+
+Wenn ein Feld in einer Quelle fehlt, schreibt ihr None oder einen Standardwert rein.
+Das Mapping schreibt ihr zuerst als Tabelle auf Papier oder in Markdown, bevor ihr anfangt zu coden.
+Das ist die wichtigste Designarbeit vor der Implementierung.
+
+API UND ENDPUNKTE
+-----------------
+Eine API (Application Programming Interface) ist eine Schnittstelle, ueber die andere Programme oder Browser
+euren Dienst nutzen koennen. Ihr baut eine sogenannte REST-API.
+
+Analogie:
+Stellt euch eine API wie die Karte eines Restaurants vor:
+- Jeder Eintrag auf der Karte ist ein Endpunkt.
+- Der Gast (ein Browser oder ein anderes Programm) schickt eine Anfrage (Bestellung).
+- Das Restaurant (eure Anwendung) schickt eine Antwort (Essen, oder eine Fehlermeldung).
+
+Einfache Beispiele fuer Endpunkte:
+
+Methode | Pfad             | Was passiert?
+GET     | /userstories     | gibt alle gespeicherten User Stories zurueck
+GET     | /userstories/42  | gibt die User Story mit der ID 42 zurueck
+POST    | /import/csv      | laedt eine CSV-Datei hoch und liest sie ein
+POST    | /classify        | schickt eine User Story rein, bekommt Fachzuordnung zurueck
+
+Wie testet ihr das?
+FastAPI erzeugt automatisch eine Seite unter http://localhost:8000/docs, auf der ihr jeden Endpunkt direkt
+im Browser ausprobieren koennt. Das nennt man Swagger UI.
+
+API-SKIZZE
+----------
+Eine API-Skizze ist keine fertige Dokumentation, sondern eine fruehe Planung auf Papier oder in Markdown.
+Sie beantwortet:
+- Welche Endpunkte brauchen wir?
+- Was schicken wir rein?
+- Was kommt raus?
+
+Beispiel:
+  POST /import/csv
+    Eingabe: CSV-Datei als Upload
+    Ausgabe: Anzahl importierter User Stories
+
+  GET /userstories
+    Eingabe: keine
+    Ausgabe: Liste aller User Stories im gemeinsamen Format
+
+  POST /classify
+    Eingabe: eine User Story als JSON
+    Ausgabe: SDM-Anteil, EvP-Anteil, GiD-Anteil + kurze Begruendung
+
+AUFGABENBOARD
+-------------
+Ein Aufgabenboard ist eine Uebersicht, wer gerade woran arbeitet und was noch offen ist.
+Es verhindert, dass zwei Personen die gleiche Aufgabe machen oder nichts mehr zu tun haben.
+
+Option 1: GitHub Issues (empfohlen fuer dieses Projekt)
+Ihr habt bereits GitHub-Accounts. Das Repository, das ihr anlegt, kann direkt GitHub Issues nutzen:
+1. Repository anlegen
+2. Tab "Issues" oeffnen
+3. Fuer jede Aufgabe ein Issue anlegen: kurzer Titel, kurze Beschreibung, wer zustaendig ist
+4. Issue schliessen, wenn die Aufgabe fertig ist
+
+Option 2: Microsoft Planner (gut geeignet fuer das Folgeprojekt)
+Ihr habt alle M365-Accounts. Microsoft Planner ist Teil davon und funktioniert aehnlich wie ein digitales
+Aufgaben-Board (Kanban-Prinzip):
+1. Planner ueber Teams oder office.com oeffnen
+2. Neuen Plan anlegen (Name = euer Projektname)
+3. Buckets anlegen (z. B. "Offen", "In Arbeit", "Fertig")
+4. Fuer jede Aufgabe eine Karte erstellen: Titel, zustaendige Person, Faelligkeitsdatum
+5. Karte in den richtigen Bucket verschieben, wenn sich der Status aendert
+
+Hinweis fuer das kommende Schuljahr: Im grossen Projektuebergreifenden Projekt werden wir Microsoft Planner
+einsetzen. Wer das schon jetzt ausprobiert, ist gut vorbereitet.
+
+Option 3: einfache Aufgabenliste im Teamlog
+Falls ein digitales Board zu aufwendig wirkt, reicht auch eine gepflegte Tabelle in doku/teamlog.md.
+Wichtig ist nur, dass ihr zu jedem Termin seht: Was ist offen, wer macht was?
+
+DOKUMENTATION - WAS GEHOERT WOHIN?
+-----------------------------------
+Ihr schreibt drei Arten von Dokumentation. Jede hat eine andere Zielgruppe:
+
+README.md - fuer jeden
+Die README ist die erste Datei, die jemand liest, der euer Projekt oeffnet. Sie beantwortet:
+- Was macht das Projekt?
+- Wie startet man es?
+- Was wurde gebaut?
+Zielgruppe: Die Lehrkraft, ein fremdes Team, zukuenftige Nutzer.
+
+doku/api.md - fuer Entwickler und Tester
+Diese Datei erklaert die API-Endpunkte:
+- Welche Routen gibt es?
+- Welche Daten muessen rein?
+- Was kommt raus?
+- Welche Fehlercodes gibt es?
+Zielgruppe: Jemand, der eure API benutzen will, ohne den Code zu lesen.
+
+doku/teamdoku.md - fuer das Projekt selbst
+Diese Datei dokumentiert eure Arbeit und Entscheidungen:
+- Warum habt ihr das Datenmodell so gewaehlt?
+- Welche Probleme gab es?
+- Wer hat was gemacht?
+Zielgruppe: Die Lehrkraft bei der Bewertung und ihr selbst beim Nachschlagen.
+
+GLOSSAR KURZ
+------------
+
+Begriff            | Bedeutung
+Heterogen          | unterschiedlich aufgebaut, verschiedene Formate oder Feldnamen
+Normalisieren      | auf eine gemeinsame, einheitliche Struktur bringen
+Endpoint/Endpunkt  | eine aufrufbare Adresse eurer API
+Mapping            | Zuordnungstabelle: Quellfeld -> Zielfeld
+Regelbasiert       | keine KI, sondern selbst definierte Regeln und Bedingungen
+Swagger UI         | automatische Testoberflaeche, die FastAPI generiert
+Repository / Repo  | euer gemeinsamer Code-Ordner auf GitHub
+Commit             | ein gespeicherter Aenderungsschritt im Repository
+
+================================================================================
+PROJEKTAUFTRAG
+================================================================================
+
+Ziel fuer Woche 1 (27.05.): Team zusammenstellen, zwei Quellformate benennen, erste Feldliste skizzieren.
+Alles andere kommt danach - die restlichen Kapitel sind Nachschlagewerk.
+
+Neu im Projektarbeiten? Lies zuerst 00 - Grundbegriffe. Dort werden Begriffe wie "User Story",
+"Datenquelle", "Mapping" und "API-Endpunkt" erklaert.
+
+AUSGANGSSITUATION
+-----------------
+Im naechsten Schuljahr arbeitet ihr in groesseren, faecheruebergreifenden Projektteams. Damit ein solches
+Projekt spaeter transparent bewertet werden kann, muessen User Stories verschiedenen Buendelungsfaechern
+zugeordnet werden - also: Welches Thema steckt in dieser Aufgabe, und fuer welches Fach ist das relevant?
+
+In diesem Abschlussprojekt entwickelt ihr einen ersten, kleineren Prototyp fuer genau diese Aufgabe.
+
+Was sind die Datenquellen?
+Als "Datenquellen" dienen Dateien, die ihr selbst erstellt. Sie simulieren Exporte aus echten Werkzeugen:
+- eine CSV-Datei (z. B. so wie sie Microsoft Planner exportieren wuerde)
+- eine JSON-Datei (z. B. so wie GitHub Issues exportiert werden)
+- optional: eine XML-Datei (z. B. ein Export aus einem aelteren Projekttool)
+
+Die Felder in diesen Dateien heissen absichtlich unterschiedlich - das erzeugt die "Heterogenitaet",
+die ihr loesen sollt.
+
+ZIEL
+----
+Entwickelt als Team einen Dienst, der:
+1. User Stories aus heterogenen Quellen (CSV, JSON, optional XML) einliest,
+2. die Daten in ein gemeinsames, einheitliches Modell ueberfuehrt,
+3. die normalisierten Daten per API bereitstellt,
+4. eine regelbasierte Empfehlung fuer die Zuordnung zu SDM, EvP und GiD erzeugt.
+
+ROLLENLOGIK IM TEAM
+-------------------
+Es gibt keine feste Trennung nach Frontend, Backend und n8n. Stattdessen arbeitet ihr als Produktteam
+mit drei Schwerpunkten:
+
+Rolle A - Datenimport und Mapping
+- analysiert die Formate (CSV, JSON, XML)
+- plant das gemeinsame Datenmodell
+- ueberfuehrt die Quelldaten in die Zielstruktur
+
+Rolle B - Fachlogik und Regelwerk
+- entwickelt die Regeln fuer die Fachzuordnung
+- testet Beispiel-User-Stories gegen die Regeln
+- dokumentiert Begruendungen und Grenzfaelle
+
+Rolle C - API, Validierung, Tests und Doku
+- erstellt die Endpunkte
+- prueft Eingaben und Ausgaben
+- sorgt fuer Testprotokoll und Startdokumentation
+
+Wichtig: Jede Person arbeitet schwerpunktmaessig in einem Bereich, aber jedes Teammitglied muss den
+Gesamtaufbau erklaeren koennen.
+
+MUSS-ANFORDERUNGEN
+------------------
+Fuer alle Teams:
+- eigenes Team-Repository
+- mindestens zwei heterogene Quellen (unterschiedliche Formate und/oder unterschiedliche Feldnamen)
+- gemeinsames Datenmodell mit Mapping-Tabelle
+- API mit mindestens zwei sinnvollen Endpunkten
+- regelbasierte Zuordnung zu SDM, EvP und GiD
+- kurze technische Doku (README + api.md)
+- Teamlog mit sichtbaren Einzelbeitraegen
+
+Zusaetzlich fuer Dreierteams:
+- dritte Quelle nach Moeglichkeit integrieren (in der Regel XML)
+
+Fuer das Zweierteam:
+- zwei Quellen genuegen als verbindlicher Kern
+- Fokus auf Stabilitaet statt Umfang
+
+SOLL-ANFORDERUNGEN
+------------------
+- Fehlerbehandlung fuer fehlerhafte Eingaben
+- einfache Tests oder Testprotokolle
+- klare Regeln mit Positiv- und Negativbeispielen fuer die Fachzuordnung
+- saubere Projektstruktur
+
+KANN-ANFORDERUNGEN
+------------------
+Erst nach erfolgreicher Kernabnahme:
+- Frontend
+- n8n-Workflow
+- Exportfunktion
+- Hosting
+- Docker
+- weitere API-Endpunkte
+
+TECHNISCHER RAHMEN
+------------------
+Empfohlen:
+- Python
+- FastAPI
+- Pydantic
+- Standardbibliothek fuer CSV, JSON und XML
+
+Andere sinnvolle Loesungen sind moeglich, solange sie fuer euch beherrschbar bleiben.
+
+DEFINITION OF DONE FUER DIE KERNABNAHME
+----------------------------------------
+Euer Kern ist fertig, wenn ihr live zeigen koennt:
+1. mindestens zwei Quellen werden eingelesen,
+2. die Daten sind in ein gemeinsames Modell uebertragen,
+3. die API liefert die Daten,
+4. die Fachzuordnung arbeitet nachvollziehbar,
+5. euer Team kann Aufbau und Entscheidungen erklaeren.
+
+================================================================================
+MEILENSTEINE UND TERMINE
+================================================================================
+
+Neu im Projektarbeiten? Lies zuerst 00 - Grundbegriffe, bevor du hier weitermachst. Viele Begriffe wie
+"Datenmodell", "Mapping" oder "Endpunkte" werden dort erklaert.
+
+UEBERSICHT
+----------
+
+Termin | Ziel               | Was am Ende sichtbar sein muss
+27.05. | Projektstart       | Team, Quellen, Rollen, erste Modellidee
+03.06. | Konzept steht      | Datenmodell, Mapping-Tabelle, Regelideen, API-Skizze
+10.06. | Vertretungssprint  | Mapping fertig, Regelwerk V1, API-Plan, Aufgabenplan
+17.06. | Technikreview      | erster lauffaehiger Kern
+24.06. | Kernabnahme        | benotbarer Kernstand
+08.07. | Politur (45 min)   | Praesentation und Demo vorbereitet
+15.07. | Abschluss          | Demo, Praesentation, Reflexion
+
+27.05. - PROJEKTSTART
+---------------------
+Was ihr heute macht:
+
+Schritt 1: Team und Name
+Legt einen Projektnamen fest. Macht das nicht zu ernst - ein kurzer, einpraegamer Name reicht.
+
+Schritt 2: Quellen auswaehlen
+Ihr braucht mindestens zwei Dateien in unterschiedlichen Formaten (z. B. eine CSV-Datei und eine JSON-Datei),
+die User Stories enthalten. Diese Dateien erstellt ihr selbst - sie simulieren Exporte aus realen Tools.
+
+Konkrete Idee: eine CSV-Datei, die wie ein Planner-Export aussieht, und eine JSON-Datei, die wie ein
+GitHub-Issues-Export aussieht.
+
+Falls ihr nicht wisst, wie ein solcher Export aussieht, versucht welche zu erzeugen (Github Export am
+besten ueber CLI per: gh issue list --repo *benutze/reponame* --json number,title,state,labels,
+assignees,createdAt > *dateiname.json* ).
+
+Schritt 3: Rollen verteilen
+Wer uebernimmt welchen Schwerpunkt? Schreibt das auf:
+- Rolle A (Datenimport und Mapping): ___
+- Rolle B (Fachlogik und Regelwerk): ___
+- Rolle C (API, Tests, Doku): ___
+
+Hinweis fuer das 2er-Team: Ihr habt eine Person weniger als die anderen Teams. Das ist kein Nachteil - euer
+Projekt darf entsprechend kompakter sein. Ueberlegt, welche zwei Rollen ihr als Schwerpunkte waehlt und wo
+ihr zusammenarbeitet. Empfehlung: Person 1 uebernimmt Rolle A + halbe Rolle B, Person 2 uebernimmt Rolle C
++ halbe Rolle B. Sprecht das in eurem ersten Review kurz an.
+
+Schritt 4: Gemeinsames Datenmodell skizzieren
+Ueberlegt: Wenn ihr eine User Story aus eurer CSV-Quelle und eine aus eurer JSON-Quelle in denselben "Topf"
+werft - welche Felder soll dieses einheitliche Datenformat haben?
+
+Schreibt eine erste Tabelle, zum Beispiel:
+
+Feld          | Pflicht? | Beispiel
+id            | ja       | "US-01"
+titel         | ja       | "Login implementieren"
+beschreibung  | nein     | "Als Nutzer moechte ich..."
+quelle        | ja       | "csv" oder "json"
+prioritaet    | nein     | "hoch"
+
+Das ist noch kein Code - nur eine Skizze auf Papier oder in Markdown.
+
+Schritt 5: Aufgabenboard anlegen
+Oeffnet euer GitHub-Repository und legt unter dem Reiter "Issues" erste Aufgabenkarten an. Jede Aufgabe =
+ein Issue. Oder: Fuellt die Tabelle im Teamlog. Wichtig ist, dass ihr seht, wer was bis zum naechsten
+Termin erledigt.
+
+Was am Ende der Stunde vorliegt:
+- Teamname
+- zwei benannte Quellen mit konkreten Formaten
+- Rolleneinteilung
+- erste Feldliste fuer das gemeinsame Modell
+- Repository angelegt und Teamlog gestartet
+
+03.06. - KONZEPT STEHT
+-----------------------
+An diesem Termin gibt es kurze Gespraeche mit der Lehrkraft pro Team (ca. 10 Minuten). Die anderen Teams
+arbeiten weiter.
+
+Format des Gespraechs: Jede Person praesentiert kurz und knackig ihr bisheriges Ergebnis - ca. 2 Minuten
+pro Person, danach einige Fachfragen von der Lehrkraft. Kein langes Herumsuchen in Dateien! Zeigt nur das,
+was ihr wirklich vorweisen koennt - egal ob auf dem Bildschirm, auf Papier oder muendlich. Das
+Praesentationsmittel ist egal, aber die Zeit ist knapp. Bereitet euch so vor, dass ihr sofort auf den Punkt
+kommt.
+
+Was ihr bis dahin fertig habt:
+
+Beispieldateien liegen vor:
+Ihr habt mindestens zwei echte Beispieldateien erstellt, z. B.:
+- data/userstories_planner.csv mit 5 bis 10 User Stories
+- data/userstories_github.json mit 5 bis 10 User Stories
+Die Felder sind bewusst unterschiedlich benannt, damit ihr das Mapping ueben muesst.
+
+Mapping-Tabelle ist fertig:
+Ihr habt eine Tabelle gebaut (in Markdown oder auf Papier), die zeigt: Welches Feld in Quelle A entspricht
+welchem Feld in eurem gemeinsamen Modell? -> Siehe 00 - Grundbegriffe fuer ein Beispiel.
+
+API-Skizze ist fertig:
+Eine einfache Liste mit 3 bis 4 geplanten Endpunkten. Was soll die API koennen? Was geht rein, was kommt
+raus? Kein Code noetig, nur Text. -> Erklaert in 00 - Grundbegriffe.
+
+Erste Regeln fuer SDM, EvP und GiD sind formuliert:
+Mindestens 3 Regeln pro Fach: Welche Begriffe im Titel oder in der Beschreibung einer User Story deuten
+auf welches Fach hin? -> Details in 03 - Buendelungsfaecher AE.
+
+Was ihr beim Review zeigen koennt muesst:
+- Beispieldateien (oeffnen und zeigen)
+- Mapping-Tabelle (erklaeren, welche Felder zusammenpassen)
+- 3 bis 5 Regelideen (woran erkennt ihr SDM, EvP oder GiD?)
+- geplante Endpunkte (welche Adressen soll eure API haben?)
+
+10.06. - VERTRETUNGSSPRINT
+---------------------------
+Kein Unterricht im klassischen Sinne. Ihr arbeitet selbststaendig. Der genaue Auftrag steht in
+06 - Vertretungsauftrag 10.06.
+
+17.06. - TECHNIKREVIEW
+-----------------------
+An diesem Termin zeigt ihr zum ersten Mal echten, laufenden Code.
+
+Erwarteter Stand:
+- Import aus mindestens einer, besser zwei Quellen laeuft
+- Daten werden in das gemeinsame Modell uebertragen
+- erste API-Antwort funktioniert (auch wenn nur ein Endpunkt)
+- erste Zuordnung fuer Beispiel-User-Stories laeuft
+- offene Probleme sind benannt
+
+Ziel des Termins:
+Nach dem Gespraech soll klar sein: Was fehlt noch bis zum 24.06.?
+
+24.06. - KERNABNAHME
+---------------------
+Dies ist der entscheidende Termin. Die benotbare Basis muss heute stehen.
+
+Am 24.06. findet Vertretung statt. Es gilt verbindlich der schriftliche Auftrag aus 08 -
+Vertretungsauftrag 24.06.
+
+Wenn zusaetzlich die 3./4. Stunde vertreten wird, arbeitet ihr in Abstimmung mit der vertretenden Lehrkraft
+weiter am Projekt.
+
+Fuer weitere Vertretungsstunden gilt: Arbeitet am Projekt weiter, sofern keine abweichenden Aufgaben der
+vertretenden Lehrkraft vorliegen.
+
+Bewertet wird:
+- stabile Kernfunktion (Import, Modell, API, Zuordnung)
+- Erklaerbarkeit: Kann jede Person ihren Teil erklaeren?
+- sichtbarer Individualbeitrag
+- Doku: Kann man das Projekt ohne Hilfe starten?
+
+Noch nicht entscheidend:
+- fertiges Frontend
+- n8n-Anbindung
+- besonders viele Endpunkte
+- Hosting oder Docker
+
+08.07. - 45 MINUTEN POLITUR
+-----------------------------
+Nutzt die Zeit fuer:
+- Generalprobe der Demo
+- Doku fertigstellen
+- letzte Fehler beheben
+- Praesentation durchgehen
+
+15.07. - ABSCHLUSS
+-------------------
+Abgeben und zeigen:
+- finaler Stand im Repository
+- Praesentation
+- Live-Demo
+- individuelle Reflexion ausgefuellt
+
+================================================================================
+BUENDELUNGSFAECHER AE
+================================================================================
+
+Diese Datei gibt euch fuer dieses Projekt eine transparente Arbeitsdefinition der drei Buendelungsfaecher.
+Sie ersetzt keine vollstaendige Bildungsplananalyse, schafft aber eine nachvollziehbare gemeinsame
+Grundlage fuer eure regelbasierte Zuordnung.
+
+SDM - SOFTWARETECHNOLOGIE UND DATENMANAGEMENT
+----------------------------------------------
+Im Projekt meint das vor allem:
+- Datenstrukturen und Datenmodelle
+- Parsing, Mapping und Vereinheitlichung
+- Umgang mit CSV, JSON und XML
+- Qualitaet von Daten
+- technische Struktur der Anwendung
+
+Typische Hinweise in Tickets:
+Datenmodell, Feldzuordnung, Import, JSON, CSV, XML, Validierung, Datensatz, Struktur
+
+Beispiel:
+"Als System sollen CSV-Daten in ein gemeinsames Ticketformat ueberfuehrt werden."
+Das spricht stark fuer SDM.
+
+EVP - ENTWICKLUNG VERNETZTER PROZESSE
+--------------------------------------
+Im Projekt meint das vor allem:
+- Schnittstellen
+- API-Endpunkte
+- Datenaustausch zwischen Systemen
+- Automatisierung von Uebergaengen
+- Prozessfluss vom Eingang bis zur Ausgabe
+
+Typische Hinweise in Tickets:
+API, REST, Endpunkt, Anfrage, Antwort, Webhook, Workflow, Integration, Weiterverarbeitung
+
+Beispiel:
+"Als externer Dienst moechte ich die vereinheitlichten Tickets ueber eine API abrufen."
+Das spricht stark fuer EvP.
+
+GID - GESTALTUNG VON IT-DIENSTLEISTUNGEN
+-----------------------------------------
+Im Projekt meint das vor allem:
+- Kundenperspektive
+- Nutzbarkeit und Verstaendlichkeit
+- Doku, Uebergabe und Handhabung
+- klare Anforderungen
+- sinnvolle Darstellung der Ergebnisse
+
+Typische Hinweise in Tickets:
+Nutzer, Kunde, Dokumentation, Bedienung, Uebergabe, Beschreibung, Verstaendlichkeit, Darstellung
+
+Beispiel:
+"Als Kunde moechte ich eine kurze Anleitung erhalten, damit ich die API ohne Rueckfragen nutzen kann."
+Das spricht stark fuer GiD.
+
+ARBEITSREGELN FUER EURE ZUORDNUNG
+----------------------------------
+1. Eine Regel muss begruendbar sein.
+2. Ein Ticket darf zu mehreren Faechern passen.
+3. Gebt bei Mischfaellen eine gewichtete Empfehlung ab.
+4. Nutzt Positiv- und Negativbeispiele.
+5. Dokumentiert unklare Faelle offen.
+
+Einfache Gewichtungsidee:
+- starker Hinweis = 2 Punkte
+- schwacher Hinweis = 1 Punkt
+- Gegenhinweis = 0 oder Abzug nach eigener Logik
+
+Beispiel fuer eine Ausgabe:
+
+Fach | Punkte | Begruendung
+SDM  | 3      | CSV-Import, Feldmapping, Datenmodell
+EvP  | 2      | API-Abruf und Weitergabe
+GiD  | 1      | kurze Nutzungsanleitung fuer den Kunden
+
+Wichtig:
+Eure Regeln muessen nicht "perfekt intelligent" sein. Sie muessen fuer euer Projekt nachvollziehbar,
+konsistent und erklaerbar sein.
+
+================================================================================
+ABGABE UND REPOSITORY
+================================================================================
+
+EIN REPOSITORY PRO TEAM
+------------------------
+Jedes Team arbeitet in einem eigenen Repository. Ziel ist nicht ein komplizierter Git-Workflow, sondern
+eine saubere Zusammenarbeit.
+
+MINIMALE ORDNERSTRUKTUR
+------------------------
+team-x/
+|- README.md
+|- src/
+|- data/
+|- examples/
+|- doku/
+|  |- teamdoku.md
+|  |- api.md
+|  |- tests.md
+|  `- teamlog.md
+`- requirements.txt
+
+PFLICHTDATEIEN
+--------------
+Ihr schreibt drei Arten von Dokumentation - jede fuer eine andere Zielgruppe:
+
+Datei             | Zielgruppe                 | Frage, die sie beantwortet
+README.md         | alle, die euer Repo oeffnen | Was macht das Projekt, und wie starte ich es?
+doku/api.md       | Entwickler und Tester       | Wie benutze ich die API? Welche Endpunkte gibt es?
+doku/teamdoku.md  | Lehrkraft, ihr selbst       | Warum habt ihr so entschieden? Wer hat was gemacht?
+
+README.md
+Zielgruppe: alle, die euer Repository oeffnen.
+- Projektname und kurze Beschreibung (2-3 Saetze)
+- Teammitglieder und Rollen
+- Systemvoraussetzungen (Python-Version, Bibliotheken)
+- Startanleitung: Was muss ich tun, damit die API laeuft?
+- bekannter Stand: Was funktioniert, was fehlt noch?
+
+doku/teamdoku.md
+Zielgruppe: Lehrkraft und euer Team - erklaert Entscheidungen und Zusammenarbeit.
+- verwendete Quellen und deren Formate
+- Datenmodell mit Begruendung (Warum diese Felder?)
+- Mapping-Tabelle (Quelle -> Modell)
+- Rollen und Aufgabenverteilung
+- Herausforderungen und wie ihr sie geloest habt
+
+doku/api.md
+Zielgruppe: jemand, der eure API benutzen will, ohne den Code zu lesen.
+- alle Endpunkte mit HTTP-Methode und Pfad
+- Was wird als Eingabe erwartet?
+- Was gibt die API zurueck?
+- Fehlerfaelle und Fehlermeldungen
+- Beispielanfragen und Beispielantworten
+
+doku/tests.md
+- Testfaelle mit Beschreibung
+- erwartete Ergebnisse
+- tatsaechliche Ergebnisse
+- Status: bestanden / fehlgeschlagen
+
+doku/teamlog.md
+- was wurde wann von wem bearbeitet
+- offene Punkte
+- naechster Schritt
+
+EINFACHE GIT-REGELN
+-------------------
+1. main soll moeglichst lauffaehig bleiben.
+2. Macht kleine, sinnvolle Commits.
+3. Vermeidet es, gleichzeitig dieselbe Datei zu bearbeiten.
+4. Holt regelmaessig den aktuellen Stand.
+5. Klare Commit-Nachrichten sind wichtiger als komplizierte Git-Technik.
+
+Sinnvolle Commit-Beispiele:
+- Import CSV vorbereitet
+- Regelwerk fuer SDM und EvP ergaenzt
+- GET /userstories fertiggestellt
+- README und API-Beispiele ergaenzt
+
+Was bis 24.06. im Repo sichtbar sein muss:
+- Arbeitsstand des Kerns
+- Rollenbeitrag jeder Person
+- Doku
+- mindestens zwei funktionierende Quellen
+- API und Zuordnung
+
+Zusatz bei Vertretung am 24.06. - schriftliche Kernstandsabgabe:
+Am 24.06. findet Vertretung statt. Daher gebt ihr an diesem Tag verbindlich eine strukturierte schriftliche
+Kernstandsabgabe ab.
+
+Pflichtdatei:
+- doku/abgabe_2026-06-24.md (genaue Struktur siehe 08 - Vertretungsauftrag 24.06.)
+
+Teams-Abgabe:
+- Zusaetzlich wird die komplette Projektordnerstruktur als ZIP in der terminierten Teams-Aufgabe hochgeladen.
+- Die ZIP muss zum angegebenen Commit-Hash passen.
+
+Abgabegel:
+- Die Datei muss vollstaendig sein und sich nur auf den aktuellen Stand im Repository beziehen.
+- Jede Aussage muss durch Pfade, Dateien, Tests oder Beispiele belegbar sein.
+- Fehlende Punkte werden offen benannt statt beschoenigt.
+
+Was erst danach sinnvoll ist:
+- Frontend
+- n8n
+- Zusatzfeatures
+Wenn der Kern nicht steht, helfen Extras nicht weiter.
+
+================================================================================
+PRAESENTATION UND ABSCHLUSS
+================================================================================
+
+ZIEL DER ABSCHLUSSPHASE
+------------------------
+Ihr zeigt nicht nur ein Ergebnis, sondern auch, dass ihr den Weg vom heterogenen Eingang bis zur
+nutzbaren Bereitstellung fachlich verstanden habt.
+
+ZEITPLAN FUER DEN 15.07.
+-------------------------
+Es praesentieren 6 Teams in einer 90-Minuten-Stunde. Jeder Teamwechsel am Praesentationsgeraet kostet Zeit.
+Deshalb gilt: Strikte Zeitvorgaben.
+
+Phase                              | Zeit
+Praesentation                      | 5 Minuten
+Live-Demo                          | 3 Minuten
+Rueckfragen der Lehrkraft          | 2 Minuten
+Wechsel, Aufbau, Puffer            | 2 Minuten
+Summe pro Team                     | 12 Minuten
+6 Teams gesamt                     | 72 Minuten
+Verbleibend fuer Abschluss usw.    | ca. 18 Minuten
+
+Die Uhr laeuft ab dem ersten Wort. Wer vorher aufbaut, spart Zeit.
+
+TIPPS FUER DIE 5-MINUTEN-PRAESENTATION
+---------------------------------------
+5 Minuten klingen kurz - mit klarer Struktur reichen sie:
+
+Folie | Inhalt                                          | Zeit
+1     | Was haben wir gebaut? (ein Satz)                | 30 Sek
+2     | Welche Quellen, welches Datenmodell?             | 60 Sek
+3     | Wie funktioniert die Zuordnung zu SDM/EvP/GiD?  | 90 Sek
+4     | Wer hat was gemacht?                             | 30 Sek
+5     | Was wuerde das Team beim naechsten Mal anders machen? | 30 Sek
+
+Dann direkt in die Demo uebergehen - keine separate Einleitung.
+
+DEMO-VORBEREITUNG
+-----------------
+Die Demo soll ohne Erklaerung funktionieren. Bereitet konkret vor:
+- API-Aufruf mit einem Beispiel-Request liegt bereit (z. B. in Swagger UI oder als fertiger curl-Befehl)
+- Ergebnis der Fachzuordnung ist sichtbar
+- keine Fenster muessen erst gesucht oder geoeffnet werden
+
+Generalprobe am 08.07. ist Pflicht.
+
+WAS IN DER PRAESENTATION GUT WIRKT
+------------------------------------
+- max. 5 Folien, grosse Schrift
+- eine Tabelle fuer das Datenmodell
+- ein konkretes Beispiel fuer die Zuordnung (Eingabe -> Ergebnis)
+- die Demo als Hoehepunkt, nicht als Anhang
+
+WAS IHR VERMEIDEN SOLLTET
+---------------------------
+- mehr als 5 Folien
+- Code-Listing auf Folien (zeigt ihn live oder lasst es weg)
+- Demo, die nicht laeuft oder die ihr erst im letzten Moment aufbaut
+- Extras erklaeren, die nicht zum Kern gehoeren
+
+ENDABGABE BIS 15.07.
+---------------------
+- finaler Stand im Repository (gepusht vor der Stunde)
+- vollstaendige Pflichtdoku (README, api.md, teamdoku.md)
+- Praesentation (5 Folien)
+- Reflexion ausgefuellt (Forms-Link erhaltet ihr von der Lehrkraft)
+
+Leitfrage fuer euren Abschluss:
+Koennte ein fremdes Team euer Produkt verstehen und die API ohne eure Hilfe benutzen?
+
+================================================================================
+VERTRETUNGSAUFTRAG 10.06.
+================================================================================
+
+Heute arbeitet ihr selbststaendig an eurem Projekt weiter. Ziel ist kein Perfektionismus, sondern ein
+sauberer Zwischenschritt in Richtung Kernabnahme.
+
+TEIL A - DATENANALYSE
+----------------------
+Bearbeitet fuer eure Quellen:
+- Welche Felder gibt es?
+- Welche Felder sind gleich oder aehnlich?
+- Welche Informationen fehlen in einzelnen Quellen?
+- Welche Werteformate sind problematisch?
+
+Ergebnis:
+Eine Mapping-Tabelle von Quelle A, Quelle B und optional Quelle C in euer gemeinsames Datenmodell.
+
+TEIL B - REGELWERK VERSION 1
+------------------------------
+Entwickelt erste Regeln fuer SDM, EvP und GiD.
+
+Mindestumfang:
+- mindestens 8 Regeln
+- mindestens 2 Beispiel-Tickets
+- mindestens 1 Grenzfall
+
+Ergebnis:
+Ein kurzer Regelkatalog mit Begruendung.
+
+TEIL C - API-PLAN
+-----------------
+Plant:
+- welche Endpunkte ihr braucht
+- welche Daten ihr zurueckgeben wollt
+- welche Felder Pflicht sind
+- welche Fehlerfaelle bedacht werden muessen
+
+Ergebnis:
+Eine API-Skizze mit Beispielantworten.
+
+TEIL D - AUFGABENPLAN BIS 17.06.
+----------------------------------
+Legt fest:
+- wer macht was
+- welche Dateien entstehen
+- was bis zum Technikreview fertig sein muss
+
+Ergebnis:
+Ein kurzer Plan fuer die naechsten Schritte.
+
+PFLICHTNACHWEISE AM ENDE DES TERMINS
+--------------------------------------
+- Mapping-Tabelle
+- Regelwerk V1
+- API-Skizze
+- Aufgabenplan
+
+ZUSATZHINWEIS
+-------------
+Wenn ihr frueher fertig seid, beginnt mit:
+- erstem Import einer Quelle
+- erster API-Rueckgabe
+- ersten Tests
+
+================================================================================
+REFLEXION - PROJEKTABSCHLUSS LF8
+================================================================================
+
+Die Reflexion wird als Microsoft Forms-Umfrage ausgefuellt. Den Link bekommt ihr von der Lehrkraft am 15.07.
+Antwortet ehrlich und kurz. Es gibt keine falschen Antworten - es geht um deinen persoenlichen Lernprozess.
+
+UEBERSICHT DER FRAGEN (ZUR VORBEREITUNG)
+-----------------------------------------
+Du kannst dich hier schon einmal vorbereiten, bevor du den Link oeffnest.
+
+Abschnitt 1 - Mein Beitrag:
+1. Welche Rolle hattest du im Team? (Auswahl)
+2. Datenimport und Mapping (Rolle A)
+3. Fachlogik und Regelwerk (Rolle B)
+4. API, Tests und Dokumentation (Rolle C)
+5. Wechselnde Aufgaben / kein fester Schwerpunkt
+6. Wie gross war dein eigener Anteil am Teamergebnis? (Skala 1-5: sehr gering -> sehr gross)
+7. Was war konkret dein wichtigster Beitrag? (Kurztext, 1-2 Saetze)
+
+Abschnitt 2 - Zusammenarbeit:
+1. Wie gut hat die Teamarbeit insgesamt funktioniert? (Skala 1-5)
+2. Wo gab es Schwierigkeiten? (Mehrfachauswahl)
+3. Technische Probleme beim Import oder der API
+4. Git / Konflikte im Repository
+5. Aufgabenverteilung unklar
+6. Kommunikation im Team
+7. Zeitplanung
+8. Keine nennenswerten Probleme
+
+Abschnitt 3 - Fachliches Lernen:
+1. Was hast du in diesem Projekt wirklich verstanden? (Mehrfachauswahl)
+2. Datenformate (CSV, JSON, XML) einlesen
+3. Daten in ein einheitliches Modell ueberfuehren (Mapping)
+4. API-Endpunkte mit FastAPI erstellen
+5. Regelbasierte Fachzuordnung entwickeln
+6. Git und kollaboratives Arbeiten
+7. Technische Dokumentation schreiben
+8. Wie gut koenntest du euer Regelwerk fuer die Fachzuordnung jemandem erklaeren, der nicht im Projekt war?
+   (Skala 1-5)
+
+Abschnitt 4 - Ausblick:
+1. Wie schaetzt du deinen eigenen Lernfortschritt in diesem Projekt ein?
+   (Skala 1-5: kaum etwas gelernt -> sehr viel gelernt)
+2. Was nimmst du fuer das naechste Projekt mit? (Kurztext, 1 Satz - optional)
+
+================================================================================
+VERTRETUNGSAUFTRAG 24.06.
+================================================================================
+
+Heute ersetzt die schriftliche Abgabe die muendliche Kernabnahme. Ziel ist ein belastbarer, pruefbarer
+Projektstand mit klaren Nachweisen.
+
+ABGABEFORMAT
+------------
+Legt im Repository genau diese Datei an:
+- doku/abgabe_2026-06-24.md
+
+Verwendet die folgende Struktur und Reihenfolge verbindlich.
+
+ABGABE IN TEAMS
+---------------
+Zusaetzlich zur Datei im Repository gebt ihr eure Arbeit in der terminierten Teams-Aufgabe ab:
+- komplette Projektordnerstruktur als ZIP-Datei
+- Dateiname: teamname_2026-06-24.zip
+- die ZIP muss den gleichen Stand enthalten wie der angegebene Commit-Hash
+
+ZUSATZ BEI WEITERER VERTRETUNG
+--------------------------------
+Wenn weitere Vertretungsstunden stattfinden, arbeitet ihr am Projekt weiter, sofern keine abweichenden
+Aufgaben der vertretenden Lehrkraft vorliegen.
+
+Insbesondere bei einer Vertretung in der 3./4. Stunde am 24.06. arbeitet ihr in Abstimmung mit der
+vertretenden Lehrkraft weiter am Projekt.
+
+STRUKTUR DER ABGABEDATEI doku/abgabe_2026-06-24.md
+----------------------------------------------------
+
+1) Kopfdaten
+- Teamname
+- Mitglieder (Vorname Nachname)
+- Datum
+- Repository-URL
+- letzter Commit-Hash vor Abgabe
+
+2) Kernstatus in 6 Saetzen
+Beantwortet knapp und praezise:
+1. Welche Quellen werden verarbeitet?
+2. Was funktioniert beim Import stabil?
+3. Wie sieht euer gemeinsames Datenmodell aus?
+4. Welche API-Endpunkte laufen bereits?
+5. Wie funktioniert die Zuordnung zu SDM, EvP, GiD?
+6. Was ist der wichtigste offene Punkt?
+
+3) Nachweis Datenmodell und Mapping
+
+3.1 Datenmodell
+Tabelle mit mindestens 8 Feldern:
+Feld | Datentyp | Pflicht (ja/nein) | Beispielwert
+
+3.2 Mapping-Tabelle
+Zielfeld | Quelle A Feld | Quelle B Feld | Regel/Transformation
+
+4) Nachweis Regelwerk Fachzuordnung
+Mindestens 10 Regeln insgesamt, verteilt auf SDM, EvP, GiD.
+
+Regel-ID | Fach | Ausloese (Keyword/Muster) | Begruendung | Beispiel-Story
+
+Zusaetzlich: 2 Grenzfaelle mit kurzer Begruendung, warum die Entscheidung schwierig ist.
+
+5) Nachweis API und Tests
+Dokumentiert mindestens 3 Endpunkte:
+Methode + Pfad | Zweck | Beispielanfrage | Beispielantwort (gekuerzt) | Status
+
+Ergaenzt mindestens 5 Testfaelle:
+Test-ID | Was wird geprueft? | Erwartet | Ergebnis | bestanden (ja/nein)
+
+6) Individueller Beitrag je Person
+Fuer jede Person eine Zeile:
+Name | Hauptaufgabe | konkrete Dateien/Ordner | 2 wichtige Commits | offener naechster Schritt
+
+7) Fehler, Risiken, naechste Schritte
+- 3 aktuell bekannte Fehler oder Risiken
+- Prioritaet je Punkt (hoch/mittel/niedrig)
+- konkreter Arbeitsplan bis 08.07.
+
+8) Selbstcheck vor Abgabe
+[ ] Alle 7 Abschnitte vollstaendig
+[ ] Alle Tabellen ausgefuellt
+[ ] Beispiele sind echt und stammen aus unserem Stand
+[ ] Commit-Hash stimmt mit dem Abgabestand ueberein
+[ ] Offene Punkte sind ehrlich benannt
+
+MINDESTSTANDARD
+---------------
+Eine unvollstaendige oder pauschale Abgabe gilt nicht als benotbarer Kernstand. Qualitaet entsteht durch
+Nachvollziehbarkeit, nicht durch lange Texte.
+
+================================================================================
+ENDE DES DOKUMENTS
+================================================================================
