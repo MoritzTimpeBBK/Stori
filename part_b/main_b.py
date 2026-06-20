@@ -15,7 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from part_a.models.unistori import UniStori
-from part_a.main_a import load_unistories_from_csv, load_unistories_from_json
+from part_a.main_a import get_all_uni_stories
 from part_b.classifier import classify_all
 
 
@@ -44,10 +44,8 @@ HARDWARE_BEISPIELE = [
 
 
 if __name__ == "__main__":
-    data_dir = PROJECT_ROOT / "data"
-
-    stories = load_unistories_from_csv(str(data_dir / "stories.csv"))
-    stories += load_unistories_from_json(str(data_dir / "stories.json"))
+    # Stories ueber Part A holen (offizielle Methode: "csv" | "json").
+    stories = get_all_uni_stories("csv") + get_all_uni_stories("json")
     stories += HARDWARE_BEISPIELE
 
     for rec in classify_all(stories):

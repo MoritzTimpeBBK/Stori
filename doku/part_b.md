@@ -21,8 +21,9 @@ data/stories.csv + stories.json
    [Part C]  stellt das Ergebnis per API bereit  →  GET /recommendations, …
 ```
 
-Part B holt sich die Daten also **direkt von Part A** (Funktionsaufruf) und gibt
-`Recommendation`-Objekte zurück. Nur **Part C** spricht HTTP.
+Part B holt sich die Daten also **direkt von Part A** über dessen offizielle
+Methode `get_all_uni_stories(source_type)` (`"csv"` | `"json"`, `"xml"` folgt)
+und gibt `Recommendation`-Objekte zurück. Nur **Part C** spricht HTTP.
 
 ---
 
@@ -128,14 +129,26 @@ Das gewählte Fach steht in `fach`, aber `alle_scores` macht den Gleichstand
 
 ## Starten / Testen
 
-Aus dem Projekt-Root ausführen:
+Die Demo holt die Stories über die offizielle Part-A-Methode
+`get_all_uni_stories(source_type)` und klassifiziert sie:
+
+```python
+from part_a.main_a import get_all_uni_stories
+from part_b.classifier import classify_all
+
+stories = get_all_uni_stories("csv") + get_all_uni_stories("json")
+for rec in classify_all(stories):
+    ...
+```
+
+Ausführen **aus dem Projekt-Root** – Part A nutzt relative Pfade wie
+`data/stories.csv`, daher muss das Arbeitsverzeichnis das Projekt-Root sein:
 
 ```bash
 python part_b/main_b.py
 ```
 
-Lädt die Stories über Part A, klassifiziert sie und gibt pro Story Fach, Score
-und Treffer aus.
+Ausgegeben wird pro Story Fach, Score und Treffer.
 
 ---
 
