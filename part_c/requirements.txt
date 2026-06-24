@@ -1,7 +1,0 @@
-# Rolle C - REST-API (FastAPI)
-fastapi>=0.110
-uvicorn[standard]>=0.27
-
-# Tests
-pytest>=8.0
-httpx>=0.27          # wird vom FastAPI TestClient benoetigt
