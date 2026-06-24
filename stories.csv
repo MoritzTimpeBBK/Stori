@@ -1,5 +1,0 @@
-Aufgabe;Beschreibung;Bucket;Prioritaet;Aufwand;Labels
-Login-Maske erstellen;Benutzer soll sich mit E-Mail und Passwort anmelden koennen;Frontend;Hoch;3;ui,login
-Datenbank-Schema fuer Stories anlegen;Tabellen und Beziehungen fuer User Stories modellieren und per SQL migrieren;Backend;Hoch;5;datenbank,sql,schema
-Bestellprozess abbilden;Geschaeftsprozess vom Warenkorb bis zur Rechnung dokumentieren;Business;Mittel;8;prozess,workflow,kunde
-Passwort-Reset Funktion;Algorithmus zum Erzeugen und Pruefen von Reset-Token;Backend;Mittel;3;funktion,logik

@@ -1,55 +1,96 @@
-# Abschlussprojekt LF8 - User-Story Mapping Service
+# Stori – User-Story Mapping Service
 
-Liest User Stories aus heterogenen Quellen (CSV, JSON, XML), ueberfuehrt sie in
-ein einheitliches Modell, stellt sie per REST-API bereit und gibt eine
-regelbasierte Empfehlung fuer das Buendelungsfach (SDM / EvP / GiD).
+Abschlussprojekt LF8 (Fachinformatiker Anwendungsentwicklung, 2025/2026).
 
-## Sofort starten (ein Befehl, keine Installation noetig)
+Stori liest User Stories aus heterogenen Quellen (CSV, JSON, später XML), überführt
+sie in ein einheitliches Datenmodell und gibt eine **regelbasierte Empfehlung**,
+zu welchem Bündelungsfach eine Story gehört: **SDM**, **EvP** oder **GiD**.
+Die normalisierten Daten und die Zuordnung werden (geplant) über eine REST-API
+bereitgestellt.
 
-```bash
-python3 main.py
+## Team & Rollen (Team 3)
+
+| Rolle | Schwerpunkt                     | Person     |
+|-------|---------------------------------|------------|
+| A     | Datenimport & Mapping           | Marc P.    |
+| B     | Fachlogik & Regelwerk           | Moritz T.  |
+| C     | API, Tests & Dokumentation      | Jeremy P.  |
+
+## Projektstruktur
+
+```
+Stori/
+├── part_a/            Rolle A – Quellen einlesen + ins Modell mappen
+│   ├── main_a.py        get_all_uni_stories("csv" | "json")
+│   ├── loader/          CSV-/JSON-Leser
+│   ├── mapper/          Quelle -> UniStori
+│   ├── models/          UniStori (gemeinsames Datenmodell)
+│   └── utils/           Text-Normalisierung
+├── part_b/            Rolle B – regelbasierte Fachzuordnung
+│   ├── classifier.py    classify() / classify_all()
+│   ├── rules.py         Keyword-Listen je Fach
+│   └── main_b.py        Demo/Schnelltest
+├── part_c/            Rolle C – REST-API
+├── data/              Beispiel-Quelldateien (stories.csv/json/xml)
+├── doku/              Dokumentation
+├── requirements.txt
+└── README.md
 ```
 
-Dann im Browser oder per curl aufrufen:
+## Voraussetzungen
 
-- http://127.0.0.1:8000/recommendations  <- das Kernergebnis
-- http://127.0.0.1:8000/summary          <- Zaehlung pro Fach
-- http://127.0.0.1:8000/stories
-- http://127.0.0.1:8000/stories/GH-102
-- http://127.0.0.1:8000/health
+- **Python 3.9 oder neuer**
+- Keine externen Abhängigkeiten – nur die Python-Standardbibliothek.
 
-## Dateien = Rollen (jede Rolle eine Datei)
+## Was aktuell läuft
 
-| Datei              | Rolle | Aufgabe                                              |
-|--------------------|-------|------------------------------------------------------|
-| `role_a_ingest.py` | A     | CSV/JSON/XML einlesen -> einheitliches Modell        |
-| `role_b_logic.py`  | B     | Normalisieren + regelbasierte Zuordnung SDM/EvP/GiD  |
-| `role_c_api.py`    | C     | REST-API, stellt Daten + Empfehlungen bereit         |
-| `main.py`          | -     | Verkettet alles, startet die API                     |
-| `data/`            | -     | Beispiel-Quelldateien (3 Formate)                    |
-
-Jede Rolle kann auch einzeln getestet werden:
+Beide Demos **aus dem Projekt-Root** ausführen (Part A nutzt relative Pfade wie
+`data/stories.csv`):
 
 ```bash
-python3 role_a_ingest.py   # zeigt nur das Einlesen
-python3 role_b_logic.py    # zeigt nur die Zuordnung
+# Rolle A – Einlesen + Mapping zeigen
+python part_a/main_a.py
+
+# Rolle B – Fachzuordnung zeigen (nutzt Part A)
+python part_b/main_b.py
 ```
 
-## Wie die Zuordnung funktioniert (Rolle B)
+## API (Rolle C)
 
-Pro Buendelungsfach gibt es eine Liste typischer Schluesselbegriffe (in
-`role_b_logic.py`, Konstante `RULES`). Titel + Beschreibung + Labels werden
-durchsucht, das Fach mit den meisten Treffern gewinnt. Die getroffenen
-Keywords werden als Begruendung mitgeliefert - damit ist die Entscheidung
-nachvollziehbar. Die Keyword-Listen sind bewusst leicht anpassbar.
+Endpunkte der REST-API:
 
-Hinweis: Die genauen Voll-Namen der Faecher SDM/EvP/GiD bitte mit der
-Lehrkraft abgleichen und die Keyword-Regeln ggf. ergaenzen.
+| Methode | Pfad                          | Zweck                                            |
+|---------|-------------------------------|--------------------------------------------------|
+| GET     | `/userstories`                | alle Stories (mit optionalen Filtern)            |
+| GET     | `/userstories/{id}`           | einzelne Story                                   |
+| POST    | `/userstories`                | neue Story anlegen                               |
+| PUT     | `/userstories/{id}`           | Story aktualisieren                              |
+| DELETE  | `/userstories/{id}`           | Story löschen                                     |
+| GET     | `/userstories/{id}/zuordnung` | Fach-Zuordnung (SDM/EvP/GiD) für eine Story      |
 
-## 1-Minuten-Demo fuer die Praesentation
+## Wie die Fachzuordnung funktioniert
 
-1. `python3 main.py` starten.
-2. `/summary` zeigen -> "9 Stories aus 3 Formaten, automatisch auf 3 Faecher verteilt".
-3. `/recommendations` zeigen -> pro Story das Fach + die getroffenen Keywords.
-4. Eine neue Zeile in `data/stories.csv` ergaenzen, Server neu starten -> sie
-   taucht klassifiziert auf. Zeigt: das System ist erweiterbar.
+Pro Bündelungsfach gibt es eine Liste typischer Schlüsselbegriffe
+([`part_b/rules.py`](part_b/rules.py)). Titel + Beschreibung einer Story werden
+durchsucht, das Fach mit den meisten Treffern gewinnt – die getroffenen Keywords
+werden als Begründung mitgeliefert, damit die Entscheidung nachvollziehbar ist.
+
+Details (Logik, Grenzfälle, Schnittstelle für Part C): **[doku/part_b.md](doku/part_b.md)**.
+
+## Bekannter Stand
+
+**Funktioniert:**
+- Import aus CSV und JSON (Rolle A)
+- gemeinsames Datenmodell `UniStori`
+- regelbasierte Zuordnung zu SDM / EvP / GiD inkl. Begründung (Rolle B)
+- Demo-Skripte für Part A und Part B
+
+**Offene Punkte:**
+- XML-Quelle (Datei vorhanden, noch nicht eingebunden)
+- Tests und die Team-Dokus `doku/api.md`, `doku/teamdoku.md`, `doku/tests.md`
+
+## Dokumentation
+
+- [`doku/part_b.md`](doku/part_b.md) – Fachlogik & Regelwerk (Rolle B)
+- [`doku/UniStori_Format_Spezifikation.md`](doku/UniStori_Format_Spezifikation.md) – Datenmodell
+- [`doku/teamlog.md`](doku/teamlog.md) – Arbeitsprotokoll

@@ -18,7 +18,7 @@ data/stories.csv + stories.json
         │   (direkter Import, kein HTTP)
    [Part B]  normalisieren + klassifizieren  →  list[Recommendation]
         │   (direkter Import, kein HTTP)
-   [Part C]  stellt das Ergebnis per API bereit  →  GET /recommendations, …
+   [Part C]  stellt das Ergebnis per API bereit  →  GET /userstories, …
 ```
 
 Part B holt sich die Daten also **direkt von Part A** über dessen offizielle
@@ -56,6 +56,17 @@ für die Bewertung sichtbar, *warum* eine Story einem Fach zugeordnet wurde.
 > Hinweis: Es wird per Teilstring gesucht. `implementier` trifft also
 > `implementieren`/`implementierung`. Sehr kurze Begriffe (`ip`, `lan`, `port`)
 > wurden bewusst weggelassen, weil sie in anderen Wörtern stecken.
+
+---
+
+## Beispiel-Ausgabe
+
+| Story                                  | Fach    | Begründung (Treffer)                         |
+|----------------------------------------|---------|----------------------------------------------|
+| Datenbank-Schema anlegen               | **SDM** | modell, schema, sql, datenbank               |
+| REST-Endpunkt implementieren           | **EvP** | api, rest, endpunkt, routing                 |
+| Defekten Switch im Serverraum tauschen | **EvP** | switch, kabel, rechenzentrum, serverraum     |
+| Anforderungen mit Kunde abstimmen      | **GiD** | kunde, anforderung, workshop                 |
 
 ---
 
@@ -106,14 +117,48 @@ Das gewählte Fach steht in `fach`, aber `alle_scores` macht den Gleichstand
 
 ---
 
-## Beispiel-Ausgabe
+## Für Part C – so wird Part B benutzt
 
-| Story                                  | Fach    | Begründung (Treffer)                         |
-|----------------------------------------|---------|----------------------------------------------|
-| Datenbank-Schema anlegen               | **SDM** | modell, schema, sql, datenbank               |
-| REST-Endpunkt implementieren           | **EvP** | api, rest, endpunkt, routing                 |
-| Defekten Switch im Serverraum tauschen | **EvP** | switch, kabel, rechenzentrum, serverraum     |
-| Anforderungen mit Kunde abstimmen      | **GiD** | kunde, anforderung, workshop                 |
+Part C importiert die zwei Funktionen aus dem Classifier:
+
+```python
+from part_b.classifier import classify, classify_all
+
+classify(story)            # eine UniStori  -> Recommendation
+classify_all(stories)      # Liste          -> Liste von Recommendations
+classify(story).to_dict()  # fertiges JSON-dict (Story + Empfehlung)
+```
+
+Für den Endpunkt `GET /userstories/{id}/zuordnung` reicht eine Zeile:
+
+```python
+return classify(story).to_dict()["empfehlung"]
+```
+
+Das fertige `to_dict()` einer Story sieht so aus:
+
+```json
+{
+  "id": 102,
+  "name": "Datenmodell fuer Mapping speichern",
+  "beschreibung": "Die normalisierten Daten muessen in der Datenbank ...",
+  "empfehlung": {
+    "fach": "SDM",
+    "score": 7,
+    "treffer": ["datenmodell", "modell", "mapping", "datenbank", "repository"],
+    "alle_scores": { "SDM": 7, "EvP": 1, "GiD": 0 }
+  }
+}
+```
+
+`alle_scores` zeigt immer **alle** Fach-Punkte mit – auch das macht die
+Entscheidung nachvollziehbar.
+
+**Wichtig für Part C:**
+- **Live berechnet** – die Zuordnung wird bei jedem Aufruf neu ermittelt, also
+  nach einem `PUT` immer aktuell und nie veraltet.
+- **Part B ist zustandslos** (reine Funktionen). Den Story-Speicher für CRUD
+  (POST/PUT/DELETE) hält **Part C**.
 
 ---
 
@@ -149,27 +194,3 @@ python part_b/main_b.py
 ```
 
 Ausgegeben wird pro Story Fach, Score und Treffer.
-
----
-
-## Ausgabe-Format (für Part C)
-
-Part C ruft `classify_all(stories)` auf und gibt jede `Recommendation` per
-`to_dict()` aus. Eine Story sieht dann so aus:
-
-```json
-{
-  "id": 102,
-  "name": "Datenmodell fuer Mapping speichern",
-  "beschreibung": "Die normalisierten Daten muessen in der Datenbank ...",
-  "empfehlung": {
-    "fach": "SDM",
-    "score": 7,
-    "treffer": ["datenmodell", "modell", "mapping", "datenbank", "repository"],
-    "alle_scores": { "SDM": 7, "EvP": 1, "GiD": 0 }
-  }
-}
-```
-
-`alle_scores` zeigt immer **alle** Fach-Punkte mit – auch das macht die
-Entscheidung nachvollziehbar.
